@@ -6,7 +6,7 @@ Subagents and teams let you decompose complex problems across multiple independe
 
 ## What it is
 
-A subagent is an agent that is spawned by another agent to handle a delegated piece of work. It operates independently — with its own context, tools, and scope — and returns its result to the agent that created it. A team is a structured group of agents, each with an assigned role, that coordinate to solve a problem no single agent could handle alone. The agent that coordinates the others is called an orchestrator; the agents that carry out the work are workers. This pattern appears across many modern agentic frameworks — CrewAI organizes agents into crews with defined roles and goals, AutoGen lets agents converse and delegate tasks to one another, LangGraph models agent coordination as a graph of nodes and edges, OpenAI Swarm focuses on lightweight handoffs between agents, Microsoft Semantic Kernel provides orchestration across AI services and plugins, AWS multi-agent patterns enable agent collaboration inside cloud-native pipelines, and Claude Code lets an orchestrating session spawn subagents for parallel tasks while its teams feature defines named persistent collaborators available across sessions.
+A subagent handles a delegated assignment and returns a result to its caller. A team coordinates agents with assigned roles toward a shared goal. The orchestrator coordinates and checks the combined result; workers handle the assigned pieces. These arrangements overlap. Claude Code supplies the concrete examples, including reusable subagent definitions and experimental, session-scoped agent teams.
 
 ## Why it belongs in this course
 
@@ -33,18 +33,22 @@ In a course about building agentic frameworks, subagents and teams are the unit 
 **Out of scope**
 
 - Building a multi-agent framework from scratch — time constraint; the demo carries the hands-on component
-- Deep dives into any specific framework — CrewAI, AutoGen, LangGraph, Claude Code are referenced as examples, not taught
+- Deep framework internals — Claude Code provides short, usable configuration examples rather than a full setup tutorial
 - Advanced coordination patterns such as consensus mechanisms, voting, or agent negotiation — beyond a 15-18 minute tutorial
 - Agent memory and state persistence across sessions — a separate topic that deserves its own tutorial
 - Security and trust between agents — important but out of scope here
 
 ## Shape
 
-- **01-context** carries the definitions — what a subagent is, what a team is, the orchestrator/worker relationship, and a brief origin of where these patterns came from. Light and fast, sets up everything after it.
-- **02-motivation** makes the case — why a single agent is not enough, what breaks without multi-agent coordination, and when to reach for it vs when not to. Concrete failure examples do the work here.
-- **03-content** carries the weight — the mental model first, then the coordination patterns, then pitfalls. The live demonstration lands here and should be the centerpiece. This section will need the most `##` units.
-- **04-conclusion** closes the loop — what the reader can now do, pointers to specific frameworks for going deeper, and what is still unsettled in this space.
-- The live demo sits inside `03-content` and is the primary hands-on moment. Keep the surrounding slides tight so the demo has room.
+- Slides 1–7: title, Codex definitions, tutorial roadmap, login scenario, delegation picture, when a subagent helps, when a team helps
+- Mechanics and comparison are consolidated into slides 6–7 to keep the first example on slide 8
+- Slides 8–17: five audience questions, each immediately followed by its answer and approach
+- The answer order is deliberately mixed: subagent, team, team, subagents, subagents
+- Slides 18–19: reusable Claude Code subagent definition and team startup
+- Slide 20: chair-design case study as the separate presenter's demo handoff
+- Slide 21: failure modes and checks
+- Slide 22: references
+- No history slide, appendix, or repeated capability checklist
 
 ## Open questions
 

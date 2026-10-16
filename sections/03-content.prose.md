@@ -1,92 +1,165 @@
-## Subagent or team?
+## Summarizing test failures
 
-**Use a subagent** when the work is focused and only the result matters
+**Situation:** a CI test run produces pages of output.
 
-**Use a team** when agents need to share findings and challenge each other as work evolves
+You need a short report containing failing test names, exact errors, and the command used. You are not investigating fixes yet.
 
-Start with one agent. Add a subagent when work can be isolated. Add a team when agents need to coordinate on their own.
+The full logs would crowd the main conversation.
 
-> Agent teams in Claude Code are **experimental** — disabled by default
+**Your choice: is a subagent enough, or would an agent team help?**
 
-## Subagents: the basic case
+*What would you delegate, and what should come back?*
 
-Spawned for **one focused task** — runs, returns a result, done
+## Test failures: a subagent is enough
 
-\vspace{0.8em}
+**Why:** this is a bounded task with a clear report to return.
 
-> **Note:** The examples below use Claude Code. The `Agent` tool is how a session delegates work to a subagent.
+1. Give one worker the test command and log location
+2. Have it extract failures and return names, errors, and reproduction steps
+3. The caller checks the summary and chooses the next investigation
 
-```
-Agent({
-  prompt: "Review src/auth/ for vulnerabilities...",
-  tools: ["Read", "Bash"]
-})
-```
+**Example request:** “Summarize the login-test failures. Return evidence and the command used. Do not edit files.”
 
-## Subagents: how it works
+*Adapted from [high-volume operations](https://code.claude.com/docs/en/sub-agents#isolate-high-volume-operations).*
 
-- **Tools scoped at spawn** — the `tools` list controls what the subagent can do; enforces isolation
-- **Own context window** — starts fresh; cannot see the caller's conversation
-- **Result returns to caller** — output appears in the spawning agent's context when done
-- **Run concurrently** — spawn several in one message; they execute in parallel
-- Named subagents can also **message each other** directly via `SendMessage`
+## An unstable login session
 
-## Teams: what they are
+**Situation:** login succeeds, then the session disappears.
 
-One session acts as the **team lead** — spawns teammates, assigns tasks, synthesizes results
+The cookie configuration, token refresh, and server-side session storage all look plausible. Evidence in one area could change what another investigator should test.
 
-Teammates each run in their own context window and do **not** inherit the lead's conversation history
+You need a root-cause hypothesis and a test that could disprove it.
 
-- **Message each other directly** — no routing through the lead required
-- **Claim tasks** from a shared task list autonomously
-- **Persistent** — stay active and addressable across the session
+**Your choice: are subagents enough, or would an agent team help?**
 
-Enable in Claude Code: `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`
+*How should the investigators compare their evidence?*
 
-## Teams: when they're worth the cost
+## Login investigation: an agent team
 
-Teams add coordination overhead and use **significantly more tokens** than a single session. They earn their cost when:
+**Why:** findings change the next step for other investigators.
 
-- **Debugging competing hypotheses** — teammates test different theories and challenge each other
-- **Research and review** — multiple perspectives investigated simultaneously
-- **New features across modules** — each teammate owns a separate piece without conflicts
-- **Cross-layer work** — frontend, backend, and tests owned by different teammates
-
-For sequential tasks, same-file edits, or simple delegation: subagents or one agent are more effective.
-
-## Subagents vs teams: choosing
-
-| | Subagents | Teams |
-|---|---|---|
-| **Context** | Own window; result returns to caller | Own window; fully independent |
-| **Communication** | Report to caller; named agents can message peers | Message each other directly |
-| **Coordination** | Caller manages all work | Self-coordinate via messages + task list |
-| **Token cost** | Lower | Significantly higher |
-| **Best for** | Focused tasks; only the result matters | Discussion, collaboration, competing views |
-
-*How these compose into larger patterns — fan-out, hierarchical, pipeline — is the next talk.*
-
-## Case study: designing a chair with three agents
-
-**Task:** find an optimal chair design satisfying three competing constraints
-
-| Agent | Constraint |
+| Teammate | First investigation |
 |---|---|
-| Cost agent | Material and production budget |
-| Manufacturing agent | Fabrication feasibility at scale |
-| Style agent | Aesthetics and user experience |
+| Cookie investigator | Cookie attributes and request headers |
+| Token investigator | Expiry and refresh behavior |
+| Storage investigator | Session lookups and server logs |
 
-Watch for:
-- How each agent's scope is isolated at spawn
-- Where a conflict forces agents to coordinate directly
-- How the orchestrator synthesizes competing constraints into one result
+Teammates challenge explanations with evidence. The lead selects a decisive test and checks the result.
 
-## Pitfalls
+*Suggested approach, adapted from [competing hypotheses](https://code.claude.com/docs/en/agent-teams#investigate-with-competing-hypotheses).*
 
-| Pitfall | What happens | Fix |
-|---|---|---|
-| **Context bleed** | Overloaded subagent recreates the degradation problem | Give each agent the minimum it needs |
-| **Over-parallelizing** | Coordination overhead exceeds the benefit | Start with one agent when in doubt |
-| **Runaway token cost** | Each agent is a full context window | Set scope tightly, check in often |
-| **Silent failure** | Partial output looks complete | Orchestrator verifies, not just collects |
-| **Conflicting edits** | Two agents overwrite each other | Each agent owns distinct files/resources |
+## A feature across modules
+
+**Situation:** add “sign out all devices.”
+
+The work spans a backend revocation API, a frontend control, and integration tests. Each area has a separate owner.
+
+API decisions may change as implementation reveals constraints. The owners need to update each other while they work.
+
+**Your choice: are subagents enough, or would an agent team help?**
+
+*What needs agreement before parallel edits begin?*
+
+## Cross-module feature: an agent team
+
+**Why:** ongoing API decisions affect several workstreams.
+
+1. Agree on the request, response, and revocation behavior
+2. Assign backend, frontend, and test files to separate teammates
+3. Share contract changes, then have the lead integrate and run an end-to-end check
+
+**Expected result:** one feature that works across all layers.
+
+With a stable contract and independent assignments, subagents could also be sufficient.
+
+*Application of [cross-layer coordination](https://code.claude.com/docs/en/agent-teams#when-to-use-agent-teams).*
+
+## Researching independent modules
+
+**Situation:** map how authentication, database storage, and API responses handle sessions.
+
+Each investigation can finish independently. You need file locations, relevant behavior, and open questions from each area.
+
+The main session will compare the reports after all workers finish.
+
+**Your choice: are subagents enough, or would an agent team help?**
+
+*Who needs to combine the findings?*
+
+## Module research: subagents are enough
+
+**Why:** the investigations can return separate reports.
+
+| Worker | Assignment |
+|---|---|
+| Authentication | Map session creation and expiry |
+| Database | Locate session persistence and deletion |
+| API | Identify responses that clear a session |
+
+Run the workers in parallel. Each returns locations and evidence. The caller connects the findings and identifies gaps.
+
+*Adapted from [parallel research](https://code.claude.com/docs/en/sub-agents#run-parallel-research).*
+
+## Reviewing a pull request
+
+**Situation:** review a PR for security, performance, and test coverage.
+
+You want independent reports from each perspective. Reviewers do not need to edit files or discuss findings while they work.
+
+The main session will deduplicate and prioritize their reports.
+
+**Your choice: are subagents enough, or would an agent team help?**
+
+*Does having several perspectives require a team?*
+
+## Independent PR review: subagents are enough
+
+**Why:** multiple perspectives can still be bounded assignments.
+
+1. Assign one reviewer to each review criterion
+2. Require file locations, severity, and supporting evidence
+3. Have the caller combine the reports and check important findings
+
+**What would change the choice?** A team helps if reviewers need to discuss interacting findings and revise the review together.
+
+*Variation on [parallel code review](https://code.claude.com/docs/en/agent-teams#run-a-parallel-code-review). The coordination requirement determines the choice.*
+
+## A reusable subagent in Claude Code
+
+Project file: `.claude/agents/login-reviewer.md`
+
+```yaml
+---
+name: login-reviewer
+description: Reviews login defects
+tools: Read, Grep, Glob
+---
+Inspect login code. Return locations,
+evidence, and suggested checks.
+```
+
+Invoke: **“Use login-reviewer to inspect src/auth/.”**
+
+The description guides delegation. Tools restrict capability. [Subagent files](https://code.claude.com/docs/en/sub-agents#write-subagent-files).
+
+## Starting a team in Claude Code
+
+Agent teams are **experimental**. Start an interactive session with:
+
+```sh
+CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 claude
+```
+
+Then ask: “Create an agent team to investigate the login regression. Assign cookie, token, and storage investigators. Have them compare evidence and propose a decisive test.”
+
+Teammates receive project context and their assignment, not the lead's conversation history. Resuming the lead does not restore in-process teammates.
+
+[Team setup and limitations](https://code.claude.com/docs/en/agent-teams).
+
+## Case study: designing a chair
+
+![](figures/chair-team.png){width=73%}
+
+Cost owns the budget. Manufacturing checks feasibility. Style considers appearance and user requirements.
+
+**Watch for:** a material change that forces another agent to revise its proposal, and how the lead resolves the tradeoff.
