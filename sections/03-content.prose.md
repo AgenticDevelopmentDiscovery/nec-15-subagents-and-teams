@@ -1,20 +1,12 @@
-## Orchestrators and workers
+## Subagent or team?
 
-![Subagents report results up to the orchestrator only. In teams, workers also send direct messages to each other.](figures/orchestrator-worker.svg){width=100%}
+**Use a subagent** when the work is focused and only the result matters
 
+**Use a team** when agents need to share findings and challenge each other as work evolves
 
-## How to decompose a task
+Start with one agent. Add a subagent when work can be isolated. Add a team when agents need to coordinate on their own.
 
-Ask four questions:
-
-1. **What are the independent domains?** — What expertise does each piece need?
-2. **Can the pieces run in parallel?** — If yes, each piece is a candidate worker
-3. **What is each agent's scope boundary?** — What does it see, and what does it return?
-4. **Where will constraints clash?** — That conflict is where the orchestrator earns its role
-
-## How to decompose a task
-
-![A complex task fans out to parallel workers, each in their own context, then converges back at the orchestrator for synthesis.](figures/task-decomposition.svg){width=95%}
+> Agent teams in Claude Code are **experimental** — disabled by default
 
 ## Subagents: the basic case
 
@@ -22,7 +14,7 @@ Spawned for **one focused task** — runs, returns a result, done
 
 \vspace{0.8em}
 
-> **Note:** The examples below use Claude Code.
+> **Note:** The examples below use Claude Code. The `Agent` tool is how a session delegates work to a subagent.
 
 ```
 Agent({
@@ -31,30 +23,48 @@ Agent({
 })
 ```
 
-- The `tools` list scopes what the subagent can use — this is how isolation is enforced at spawn
-- When finished, the subagent returns its result as text back to the orchestrator's context
-- Gets its own context window; cannot see the orchestrator's conversation
-- Can run **concurrently** — spawn several at once for parallel work
+## Subagents: how it works
 
-## Teams: going further
+- **Tools scoped at spawn** — the `tools` list controls what the subagent can do; enforces isolation
+- **Own context window** — starts fresh; cannot see the caller's conversation
+- **Result returns to caller** — output appears in the spawning agent's context when done
+- **Run concurrently** — spawn several in one message; they execute in parallel
+- Named subagents can also **message each other** directly via `SendMessage`
 
-A **task list** is a shared queue of work items that teammates claim, complete, and hand off — without waiting for the orchestrator to assign each one.
+## Teams: what they are
 
-Teammates are **persistent** and can **message each other directly**
+One session acts as the **team lead** — spawns teammates, assigns tasks, synthesizes results
 
-- Claim work from the shared **task list** autonomously
-- A security teammate can message the test coverage teammate directly
-- The orchestrator does not need to be in every exchange
+Teammates each run in their own context window and do **not** inherit the lead's conversation history
+
+- **Message each other directly** — no routing through the lead required
+- **Claim tasks** from a shared task list autonomously
+- **Persistent** — stay active and addressable across the session
+
+Enable in Claude Code: `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`
+
+## Teams: when they're worth the cost
+
+Teams add coordination overhead and use **significantly more tokens** than a single session. They earn their cost when:
+
+- **Debugging competing hypotheses** — teammates test different theories and challenge each other
+- **Research and review** — multiple perspectives investigated simultaneously
+- **New features across modules** — each teammate owns a separate piece without conflicts
+- **Cross-layer work** — frontend, backend, and tests owned by different teammates
+
+For sequential tasks, same-file edits, or simple delegation: subagents or one agent are more effective.
 
 ## Subagents vs teams: choosing
 
 | | Subagents | Teams |
 |---|---|---|
-| **Communication** | Report to caller only | Message each other directly |
-| **Coordination** | Orchestrator manages all | Self-coordinate |
-| **Persistence** | One task, then done | Named, persistent |
-| **Token cost** | Lower | Higher |
-| **Best for** | Parallel focused tasks | Collaborative, iterative work |
+| **Context** | Own window; result returns to caller | Own window; fully independent |
+| **Communication** | Report to caller; named agents can message peers | Message each other directly |
+| **Coordination** | Caller manages all work | Self-coordinate via messages + task list |
+| **Token cost** | Lower | Significantly higher |
+| **Best for** | Focused tasks; only the result matters | Discussion, collaboration, competing views |
+
+*How these compose into larger patterns — fan-out, hierarchical, pipeline — is the next talk.*
 
 ## Case study: designing a chair with three agents
 
@@ -69,7 +79,7 @@ Teammates are **persistent** and can **message each other directly**
 Watch for:
 - How each agent's scope is isolated at spawn
 - Where a conflict forces agents to coordinate directly
-- The moment the pattern tips from subagents → team
+- How the orchestrator synthesizes competing constraints into one result
 
 ## Pitfalls
 

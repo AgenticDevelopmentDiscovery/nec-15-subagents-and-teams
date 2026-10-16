@@ -20,8 +20,9 @@ What changed with LLMs: the workers now **reason**, not just execute
 
 ## What this tutorial covers
 
-- What subagents and teams are — and how they differ
-- Why a single agent is not enough
-- How to coordinate multiple agents effectively
-- When to use one agent vs. many
+- What **subagents** are — and how to use them
+- What **teams** are — and how they differ from subagents
+- When each is the right tool
 - Common failure modes to avoid
+
+*How subagents and teams compose into larger orchestration patterns is the next talk.*
