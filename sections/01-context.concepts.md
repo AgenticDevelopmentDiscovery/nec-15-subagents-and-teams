@@ -1,43 +1,29 @@
 # Context — spine
 
-> The register that does not ship. This file is never rendered into the document,
-> the slides, or the site — but the reviewers read it, and they judge whether what
-> it promises is turning into prose.
->
-> Keep it in note form. Prose here is a sign you wrote in the wrong file.
-
 ## Purpose
 
-Say WHAT the topic is and where it came from, so the reader can hold it in mind
-before being told why it matters or how to use it.
+Say WHAT subagents and teams are, where the pattern came from, and what this tutorial will deliver — so the reader can hold the concepts before being told why they matter.
 
 ## Claims
 
-> The load-bearing assertions of this section, one line each. In a tutorial these
-> are usually definitional: what the thing is, what it is not, what it replaced.
-> If a claim is not here, the reviewers will treat its appearance in the prose as
-> unplanned.
-
-- (claim)
-- (claim)
+- A subagent is an agent spawned to handle delegated work independently; it returns a result to its caller
+- A team is a structured group of agents with assigned roles coordinating toward a shared goal
+- The orchestrator/worker split is the organizing principle of multi-agent systems
+- This pattern is not new — it descends directly from distributed systems design; what changed is that the workers now reason
+- The same pattern appears across all major agentic frameworks, with different names and mechanics
 
 ## Decisions
 
-> Why the section reads the way it does. The definition you chose and the one you
-> rejected, how much history you kept and why. This is what stops the team
-> relitigating the same choice every round.
-
-- (decision — and what it was chosen over)
+- Define subagent and team separately before introducing orchestrator/worker — the concepts are easier to hold in sequence than all at once
+- Name the frameworks in the definition section, not in their own slide — they are evidence of the pattern's breadth, not the subject
+- Keep the history short (one paragraph) — enough to explain why the design is the way it is, not a survey
+- Put the capability promise and out-of-scope explicitly in the roadmap slide — this is what the panel checks the conclusion against
 
 ## Open questions
 
-> What you do not know yet. Naming it here is cheap; discovering it in review is not.
-
-- (question)
+- Replaced map-reduce reference with universal analogies (research lab, factory, film crew) — audience is mixed STEM, not all CS
 
 ## Not doing
 
-> Scope you have deliberately excluded, so a reviewer does not report it as missing
-> and you do not drift back into it.
-
-- (excluded, and why)
+- A taxonomy of all coordination patterns (hierarchical, flat, pipeline, etc.) — too much for context; belongs in 03-content if anywhere
+- Framework-specific setup or code — this section is definitions only

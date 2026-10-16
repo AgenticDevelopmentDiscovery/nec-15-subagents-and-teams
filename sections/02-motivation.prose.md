@@ -1,35 +1,33 @@
-# Motivation
+## Why a single agent is not enough
 
-<!-- Every `##` becomes one slide. One idea each. -->
+Every agent has three hard limits: a bounded **context window**, **attention that degrades** as that window fills, and **serial execution**.
 
-## Why it matters for agentic development
-
-> The case, made concretely. What does this tool, technique, or notion let an
-> agentic system do that is hard or impossible without it?
->
-> Tie it to agentic development specifically — not to software in general. If the
-> answer would read the same for any programming topic, you have not made the
-> case yet.
-
-Replace this paragraph.
+![A single agent serialises all tasks through one context window — earlier findings get dropped as it fills.](figures/single-agent-limit.svg){width=100%}
 
 ## What goes wrong without it
 
-> The failure it prevents, shown rather than asserted. A concrete situation that
-> goes badly, and how it goes badly.
->
-> This is the paragraph that makes the tutorial worth reading. A reader who has
-> felt the failure will follow you through the mechanics; one who has not will
-> skim. Use a real case if you have one.
+**Task:** audit a codebase for security, performance, and test coverage gaps
 
-Replace this paragraph.
+A context window does not just fill — the agent's attention on earlier content degrades *before* the limit is reached, making the failure silent rather than obvious. The report looks complete. It isn't.
 
-## When to reach for it
+![Without multi-agent coordination, a single agent drops earlier findings as its context fills. Three subagents each stay focused and return complete results.](figures/failure-mode.svg){width=100%}
 
-> The bounds, stated by you rather than discovered by a frustrated reader. What
-> it is good for, and — just as important — when it is the wrong tool.
->
-> A technique with honestly stated limits is more usable than one presented as
-> universal, because the reader can tell whether their situation is in scope.
+## When to use multiple agents
 
-Replace this paragraph.
+Reach for multiple agents when the task has:
+
+- **Independent parts** that can run in parallel
+- **Different domains** requiring separate tools or expertise
+- **Scale** too large for one context window
+- **Independent perspectives** that add value (review, critique, verification)
+
+> *Heuristic: would you hand this to a team of specialists rather than one person?*
+
+## When one agent is enough
+
+Stick with one agent when:
+
+- Steps are **sequential** — each depends on the previous
+- Work touches **shared state** — coordination overhead exceeds the benefit
+- Task **fits in one context window** without degrading
+- You need the result **fast** and coordination cost is not worth it

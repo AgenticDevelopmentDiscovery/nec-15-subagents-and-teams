@@ -1,40 +1,27 @@
-# Context
+## What subagents and teams are
 
-<!-- SHIPPED PROSE. This file is rendered into all three outputs.
-     Every `##` below becomes one slide — keep each to one idea.
-     Delete these comments and the guidance blockquotes as you write. -->
+**Subagent** — an agent spawned by another agent to handle one delegated task
 
-## What this is
+**Team** — a structured group of agents, each with a role, coordinating toward a shared goal
 
-> Name the topic and say plainly what it is, in one paragraph, before any
-> argument about why it matters. A reader who stops here should be able to
-> describe the thing correctly to someone else, even if coarsely.
->
-> Define it in terms of what it *does*, not what it is built from. Resist the
-> urge to justify it — that is the next section's job, and mixing the two is the
-> most common way a tutorial loses its opening.
+**Orchestrator** — coordinates and synthesizes
 
-Replace this paragraph.
+**Workers** — execute independently, in their own context windows
 
-## Where it came from
+## Where this pattern came from
 
-> The short history: what problem it was invented to solve, by whom or in what
-> setting, and what people did before it existed.
->
-> This is not a literature survey and not a timeline. Two or three sentences of
-> origin earn their place because they explain the design — most of what looks
-> arbitrary about a tool is a fossil of the problem it was built for. Cut any
-> history that does not explain something the reader will meet later.
+Older than computing:
 
-Replace this paragraph.
+- Research lab → divide a literature review across the team
+- Factory → split assembly across stations
+- Film crew → split production across departments
+
+What changed with LLMs: the workers now **reason**, not just execute
 
 ## What this tutorial covers
 
-> The scope and the roadmap. Name each section and what the reader gets from it,
-> and say what the reader will be able to *do* by the end — a capability, not a
-> list of topics.
->
-> Say what is out of scope here too. This is the promise the rest of the tutorial
-> must keep, and the panel will check it against what you actually delivered.
-
-Replace this paragraph.
+- What subagents and teams are — and how they differ
+- Why a single agent is not enough
+- How to coordinate multiple agents effectively
+- When to use one agent vs. many
+- Common failure modes to avoid

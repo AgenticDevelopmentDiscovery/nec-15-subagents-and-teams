@@ -1,47 +1,79 @@
-# Content
+## Orchestrators and workers
 
-<!-- Every `##` becomes one slide. One idea each.
-     This is the main portion of the tutorial and the section most likely to
-     need more `##` units than the four below. Add them freely — each new
-     heading is a new slide, and splitting is how you find the joints. -->
+![Subagents report results up to the orchestrator only. In teams, workers also send direct messages to each other.](figures/orchestrator-worker.svg){width=100%}
 
-## How it works
+Two topologies: **subagents** (results flow up only) and **teams** (workers also message each other directly). Start with subagents — see § *Subagents vs teams: choosing* for when to reach for teams.
 
-> The mental model, before any procedure. What are the moving parts and how do
-> they relate? A reader who has this can predict what the tool will do in a case
-> you never showed them; one who has only the steps cannot.
->
-> This is the unit most likely to need a figure — the boxes, the arrows, the one
-> relationship the prose leaves abstract. See `figures/README.md`.
+## How to decompose a task
 
-Replace this paragraph.
+Ask four questions:
 
-## Using it: the basic case
+1. **What are the independent domains?** — What expertise does each piece need?
+2. **Can the pieces run in parallel?** — If yes, each piece is a candidate worker
+3. **What is each agent's scope boundary?** — What does it see, and what does it return?
+4. **Where will constraints clash?** — That conflict is where the orchestrator earns its role
 
-> The first walkthrough, concrete enough to follow along. Show the actual
-> commands, code, or configuration — not a description of them.
->
-> Pick the smallest case that is still real. A toy that could not occur in
-> practice teaches the toy; a realistic case teaches the tool.
+![A complex task fans out to parallel workers, each in their own context, then converges back at the orchestrator for synthesis.](figures/task-decomposition.svg){width=95%}
 
-Replace this paragraph.
+## Subagents: the basic case
 
-## Using it: going further
+Spawned for **one focused task** — runs, returns a result, done
 
-> The second case, one step harder, chosen to expose something the first one
-> hid. Say what is new here and why the basic case could not show it.
->
-> Split this into several `##` units if it does not fit one slide. That split is
-> a feature: it forces you to find the joints in your own explanation.
+> **Note:** The examples below use Claude Code — the platform used in this course. The `Agent` tool is how an orchestrating session delegates work to a subagent.
 
-Replace this paragraph.
+```
+Agent({
+  prompt: "Review src/auth/ for vulnerabilities...",
+  tools: ["Read", "Bash"]
+})
+```
+
+- The `tools` list scopes what the subagent can use — this is how isolation is enforced at spawn
+- When finished, the subagent returns its result as text back to the orchestrator's context
+- Gets its own context window; cannot see the orchestrator's conversation
+- Can run **concurrently** — spawn several at once for parallel work
+
+## Teams: going further
+
+A **task list** is a shared queue of work items that teammates claim, complete, and hand off — without waiting for the orchestrator to assign each one.
+
+Teammates are **persistent** and can **message each other directly**
+
+- Claim work from the shared **task list** autonomously
+- A security teammate can message the test coverage teammate directly
+- The orchestrator does not need to be in every exchange
+
+## Subagents vs teams: choosing
+
+| | Subagents | Teams |
+|---|---|---|
+| **Communication** | Report to caller only | Message each other directly |
+| **Coordination** | Orchestrator manages all | Self-coordinate |
+| **Persistence** | One task, then done | Named, persistent |
+| **Token cost** | Lower | Higher |
+| **Best for** | Parallel focused tasks | Collaborative, iterative work |
+
+## Case study: designing a chair with three agents
+
+**Task:** find an optimal chair design satisfying three competing constraints
+
+| Agent | Constraint |
+|---|---|
+| Cost agent | Material and production budget |
+| Manufacturing agent | Fabrication feasibility at scale |
+| Style agent | Aesthetics and user experience |
+
+Watch for:
+- How each agent's scope is isolated at spawn
+- Where a conflict forces agents to coordinate directly
+- The moment the pattern tips from subagents → team
 
 ## Pitfalls
 
-> The mistakes people actually make, and what each one looks like when it
-> happens. Lead with the symptom the reader will see, then the cause.
->
-> Prefer the errors you have made yourself. Invented pitfalls are obvious to a
-> reader who has made the real ones.
-
-Replace this paragraph.
+| Pitfall | What happens | Fix |
+|---|---|---|
+| **Context bleed** | Overloaded subagent recreates the degradation problem | Give each agent the minimum it needs |
+| **Over-parallelizing** | Coordination overhead exceeds the benefit | Start with one agent when in doubt |
+| **Runaway token cost** | Each agent is a full context window | Set scope tightly, check in often |
+| **Silent failure** | Partial output looks complete | Orchestrator verifies, not just collects |
+| **Conflicting edits** | Two agents overwrite each other | Each agent owns distinct files/resources |
