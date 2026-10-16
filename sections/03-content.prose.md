@@ -2,7 +2,6 @@
 
 ![Subagents report results up to the orchestrator only. In teams, workers also send direct messages to each other.](figures/orchestrator-worker.svg){width=100%}
 
-Two topologies: **subagents** (results flow up only) and **teams** (workers also message each other directly). Start with subagents — see § *Subagents vs teams: choosing* for when to reach for teams.
 
 ## How to decompose a task
 
@@ -13,13 +12,17 @@ Ask four questions:
 3. **What is each agent's scope boundary?** — What does it see, and what does it return?
 4. **Where will constraints clash?** — That conflict is where the orchestrator earns its role
 
+## How to decompose a task
+
 ![A complex task fans out to parallel workers, each in their own context, then converges back at the orchestrator for synthesis.](figures/task-decomposition.svg){width=95%}
 
 ## Subagents: the basic case
 
 Spawned for **one focused task** — runs, returns a result, done
 
-> **Note:** The examples below use Claude Code — the platform used in this course. The `Agent` tool is how an orchestrating session delegates work to a subagent.
+\vspace{0.8em}
+
+> **Note:** The examples below use Claude Code.
 
 ```
 Agent({
