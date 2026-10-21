@@ -156,10 +156,3 @@ Teammates receive project context and their assignment, not the lead's conversat
 
 [Team setup and limitations](https://code.claude.com/docs/en/agent-teams).
 
-## Case study: designing a chair
-
-![](figures/chair-team.png){width=73%}
-
-Cost owns the budget. Manufacturing checks feasibility. Style considers appearance and user requirements.
-
-**Watch for:** a material change that forces another agent to revise its proposal, and how the lead resolves the tradeoff.
